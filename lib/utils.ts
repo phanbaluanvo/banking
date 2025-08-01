@@ -2,6 +2,7 @@
 import { type ClassValue, clsx } from "clsx";
 import qs from "query-string";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -193,3 +194,67 @@ export const getTransactionStatus = (date: Date) => {
 
   return date > twoDaysAgo ? "Processing" : "Success";
 };
+
+export const authFormSchema = (type: string) =>
+  z.object({
+    firstName:
+      type === "sign-in"
+        ? z.string().optional()
+        : z.string({ message: "First name is required" }),
+
+    lastName:
+      type === "sign-in"
+        ? z.string().optional()
+        : z.string({ message: "Last name is required" }),
+
+    address1:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+          .string({ message: "Address is required" })
+          .max(50, { message: "Address must be under 50 characters" }),
+
+    city:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+          .string({ message: "City is required" })
+          .max(50, { message: "City must be under 50 characters" }),
+
+    province:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+          .string({ message: "Province is required" })
+          .max(2, { message: "Province must be 2-letter code (e.g. BC, ON)" }),
+
+    postalCode:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+          .string({ message: "Postal code is required" })
+          .min(5, { message: "Postal code must be at least 5 characters" })
+          .max(9, { message: "Postal code must be at most 9 characters" }),
+
+    dateOfBirth:
+      type === "sign-in"
+        ? z.string().optional()
+        : z.string({ message: "Date of birth is required" }),
+
+    ssn:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+          .string({ message: "SSN is required" })
+          .min(4, { message: "SSN must be exactly 4 digits" })
+          .max(4, { message: "SSN must be exactly 4 digits" }),
+
+    // Shared fields
+    email: z
+      .string({ message: "Email is required" })
+      .email({ message: "Please enter a valid email address" }),
+
+    password: z
+      .string({ message: "Password is required" })
+      .min(8, { message: "Password must be at least 8 characters" }),
+  });
